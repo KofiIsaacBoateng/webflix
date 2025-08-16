@@ -1,16 +1,27 @@
+import Categories from "@/components/Categories";
 import Header from "@/components/Header";
+import { Hollywood, TrendNow } from "@/components/Recommendations";
+import Trending from "@/components/Trending";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView } from "react-native";
 
 const index = () => {
   return (
-    <View className="flex-1">
+    <>
       <Header />
-      <View className="flex-1 bg-[#000]"></View>
-    </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="flex-1 w-full bg-[#010101]"
+        contentContainerClassName="gap-2 pb-[100px]"
+        scrollEventThrottle={1}
+      >
+        <Trending />
+        <Categories />
+        <TrendNow />
+        <Hollywood />
+      </ScrollView>
+    </>
   );
 };
 
 export default index;
-
-const styles = StyleSheet.create({});

@@ -33,9 +33,6 @@
           "resizeMode": "contain",
           "backgroundColor": "#27391C",
           "dark": {
-            "image": "./assets/images/movie-box.webp",
-            "imageWidth": 200,
-            "resizeMode": "contain",
             "backgroundColor": "#27391C"
           }
         }

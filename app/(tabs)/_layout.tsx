@@ -16,7 +16,7 @@ const RootLayout = () => {
         tabBarActiveTintColor: "#fffd",
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "#101010",
+          backgroundColor: "#000",
           height: "auto",
           paddingTop: 5,
           borderTopWidth: 0,
