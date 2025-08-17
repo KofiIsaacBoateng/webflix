@@ -27,6 +27,9 @@ export default function RootLayout() {
       <Stack screenOptions={{ header: () => null }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="ranking" />
+        <Stack.Screen name="/special" />
+        <Stack.Screen name="/movie/:id" />
       </Stack>
       <StatusBar style="auto" />
     </>

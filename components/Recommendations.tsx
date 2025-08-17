@@ -1,11 +1,29 @@
-import { fetchTrending } from "@/api/api";
+import {
+  adventure,
+  animations,
+  countryType,
+  fetchBollywoodMovies,
+  fetchCDrama,
+  fetchGhMovies,
+  fetchHollywoodMovies,
+  fetchKDrama,
+  fetchNollywoodMovies,
+  fetchTrending,
+  fetchWesternTv,
+  horror,
+  hotAction,
+  mediaType,
+  YAFiction,
+} from "@/api/api";
 import useFetch from "@/hooks/useFetch";
+import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import HeaderLinks from "./HeaderLinks";
 import MovieCard from "./MovieCard";
 
 export const TrendNow = () => {
+  const router = useRouter();
   const { loading, reFetch, reset, data, error } = useFetch(
     () => fetchTrending("day"),
     true
@@ -16,7 +34,12 @@ export const TrendNow = () => {
       <HeaderLinks
         title="Trending now🔥"
         actionTitle="all"
-        action={() => null}
+        action={() =>
+          router.navigate({
+            pathname: "./ranking",
+            params: { activeTab: "toplist" },
+          })
+        }
       />
 
       {loading ? (
@@ -30,7 +53,7 @@ export const TrendNow = () => {
             <MovieCard
               source={item.poster_path}
               title={item.title || item.name}
-              action={() => null}
+              id={item.id}
             />
           )}
           contentContainerClassName="gap-2 px-2"
@@ -45,18 +68,37 @@ export const TrendNow = () => {
   );
 };
 
-export const Hollywood = () => {
-  const { loading, reFetch, reset, data, error } = useFetch(
-    () => fetchTrending("day"),
-    true
-  );
+interface CountryBasedType {
+  func: () => any;
+  routeParam?: {
+    mediaType: mediaType;
+    country: countryType;
+  };
+  title: string;
+  isRanked?: { activeTab: string };
+}
+
+const CountryBased = ({
+  func,
+  routeParam,
+  title,
+  isRanked,
+}: CountryBasedType) => {
+  const { loading, reFetch, reset, data, error } = useFetch(func, true);
+  const router = useRouter();
 
   return (
     <View className="mt-2 gap-1">
       <HeaderLinks
-        title="Hollywood movie"
+        title={title}
         actionTitle="all"
-        action={() => null}
+        action={() =>
+          router.navigate(
+            isRanked
+              ? { pathname: "./ranking", params: { route: isRanked.activeTab } }
+              : "./special"
+          )
+        }
       />
 
       {loading ? (
@@ -70,7 +112,7 @@ export const Hollywood = () => {
             <MovieCard
               source={item.poster_path}
               title={item.title || item.name}
-              action={() => null}
+              id={item.id}
             />
           )}
           contentContainerClassName="gap-2 px-2"
@@ -84,3 +126,134 @@ export const Hollywood = () => {
     </View>
   );
 };
+
+export const Hollywood = () => (
+  <CountryBased
+    func={fetchHollywoodMovies}
+    routeParam={{ mediaType: "movie", country: "US" }}
+    title="Hollywood Movie"
+    isRanked={{ activeTab: "hollywood" }}
+  />
+);
+
+export const WesternTV = () => (
+  <CountryBased
+    func={fetchWesternTv}
+    routeParam={{ mediaType: "tv", country: "US" }}
+    title="Wester TV"
+    isRanked={{ activeTab: "western" }}
+  />
+);
+
+export const Ghanaian = () => (
+  <CountryBased
+    func={fetchGhMovies}
+    routeParam={{ mediaType: "movie", country: "GH" }}
+    title="Ghanaian Special"
+    isRanked={{ activeTab: "ghanaian" }}
+  />
+);
+
+export const Bollywood = () => (
+  <CountryBased
+    func={fetchBollywoodMovies}
+    routeParam={{ mediaType: "movie", country: "IN" }}
+    title="Hot Bollywood Movies"
+    isRanked={{ activeTab: "bollywood" }}
+  />
+);
+
+export const NollyWood = () => (
+  <CountryBased
+    func={fetchNollywoodMovies}
+    routeParam={{ mediaType: "movie", country: "NG" }}
+    title="Latest Nollywood Movies"
+    isRanked={{ activeTab: "nollywood" }}
+  />
+);
+
+export const KDrama = () => (
+  <CountryBased
+    func={fetchKDrama}
+    routeParam={{ mediaType: "tv", country: "KR" }}
+    title="K-Drama"
+    isRanked={{ activeTab: "kdrama" }}
+  />
+);
+
+export const CDrama = () => (
+  <CountryBased
+    func={fetchCDrama}
+    routeParam={{ mediaType: "tv", country: "CN" }}
+    title="C-Drama"
+    isRanked={{ activeTab: "cdrama" }}
+  />
+);
+
+export const SpecificDisplays = ({
+  title,
+  func,
+  isRanked,
+}: CountryBasedType) => {
+  const { loading, reFetch, reset, data, error } = useFetch(func, true);
+  const router = useRouter();
+
+  return (
+    <View className="mt-2 gap-1">
+      <HeaderLinks
+        title={title}
+        actionTitle="all"
+        action={() =>
+          router.navigate(
+            isRanked
+              ? { pathname: "./ranking", params: { route: isRanked.activeTab } }
+              : "./special"
+          )
+        }
+      />
+
+      {loading ? (
+        <View className="w-full h-full items-center justify-center">
+          <ActivityIndicator size="small" color={"#fffa"} />
+        </View>
+      ) : data?.length > 0 ? (
+        <FlatList
+          data={data}
+          renderItem={({ item, index }) => (
+            <MovieCard
+              source={item.poster_path}
+              title={item.title || item.name}
+              id={item.id}
+            />
+          )}
+          contentContainerClassName="gap-2 px-2"
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
+        />
+      ) : (
+        <Text>Error</Text>
+      )}
+    </View>
+  );
+};
+
+export const Anime = () => (
+  <SpecificDisplays
+    func={() => animations(true)}
+    title="Anime Express"
+    isRanked={{ activeTab: "anime" }}
+  />
+);
+export const YAF = () => (
+  <SpecificDisplays func={YAFiction} title="Young Adult Fiction" />
+);
+export const Action = () => (
+  <SpecificDisplays func={hotAction} title="Hot Action Movies" />
+);
+export const Horror = () => (
+  <SpecificDisplays func={horror} title="Midnight Horrors" />
+);
+export const Adventure = () => (
+  <SpecificDisplays func={adventure} title="Adventure" />
+);

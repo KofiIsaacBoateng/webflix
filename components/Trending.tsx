@@ -27,7 +27,7 @@ const Trending = () => {
   );
 
   return (
-    <View className={`w-full bg-black`} style={{ height: height * 0.4 }}>
+    <View className={`w-full`} style={{ height: height * 0.4 }}>
       {loading ? (
         <View className="w-full h-full items-center justify-center">
           <ActivityIndicator size="small" color={"#fffa"} />
@@ -37,12 +37,12 @@ const Trending = () => {
           <FlatList
             data={data}
             renderItem={({ item }) => (
-              <View className={`h-full w-[${width + "px"}]`}>
+              <View className={`h-full`} style={{ width }}>
                 <ImageBackground
                   source={{
-                    uri: `${TMDB_BASE_IMAGE_PATH}original${item.backdrop_path}`,
+                    uri: `${TMDB_BASE_IMAGE_PATH}w92${item.backdrop_path}`,
                   }}
-                  className="w-full h-[100%] justify-end z-30"
+                  className="w-full h-[100%] justify-end z-10"
                   resizeMode="cover"
                   blurRadius={30}
                 >
@@ -72,7 +72,7 @@ const Trending = () => {
                     source={{
                       uri: `${TMDB_BASE_IMAGE_PATH}original${item.backdrop_path}`,
                     }}
-                    className={`w-full h-[100%] absolute left-0 top-[60px] z-10`}
+                    className={`w-full h-[100%] absolute left-0 top-[60px] `}
                     resizeMode="cover"
                   />
                 </ImageBackground>

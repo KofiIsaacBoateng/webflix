@@ -1,6 +1,20 @@
 import Categories from "@/components/Categories";
 import Header from "@/components/Header";
-import { Hollywood, TrendNow } from "@/components/Recommendations";
+import {
+  Action,
+  Adventure,
+  Anime,
+  Bollywood,
+  CDrama,
+  Ghanaian,
+  Hollywood,
+  Horror,
+  KDrama,
+  NollyWood,
+  TrendNow,
+  WesternTV,
+  YAF,
+} from "@/components/Recommendations";
 import Trending from "@/components/Trending";
 import React from "react";
 import { ScrollView } from "react-native";
@@ -19,6 +33,17 @@ const index = () => {
         <Categories />
         <TrendNow />
         <Hollywood />
+        <YAF />
+        <WesternTV />
+        <Anime />
+        <Ghanaian />
+        <Bollywood />
+        <NollyWood />
+        <KDrama />
+        <CDrama />
+        <Action />
+        <Horror />
+        <Adventure />
       </ScrollView>
     </>
   );
