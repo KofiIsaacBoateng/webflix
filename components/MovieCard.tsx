@@ -13,7 +13,7 @@ const MovieCard = ({ source, title, id }: MovieCardType) => {
   const router = useRouter();
   return (
     <Pressable
-      onPress={() => router.navigate(`./movie/${id}`)}
+      onPress={() => router.navigate(`./${id}`)}
       className="w-[105px] h-[180px] rounded-md bg-[#232323] overflow-hidden"
     >
       <Image

@@ -5,7 +5,7 @@ interface UseFetch {
   error: Error | null;
   data: [any] | [];
   reset: () => void;
-  reFetch: (fetchFunc: any) => Promise<void>;
+  reFetch: () => any;
 }
 const useFetch = (fetchFunc: any, autoFetch = true): UseFetch => {
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ const useFetch = (fetchFunc: any, autoFetch = true): UseFetch => {
     if (autoFetch) fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return { loading, error, data, reset, reFetch: fetch };
+  return { loading, error, data, reset, reFetch: () => fetch() };
 };
 
 export default useFetch;

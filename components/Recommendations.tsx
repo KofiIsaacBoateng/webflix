@@ -69,7 +69,7 @@ export const TrendNow = () => {
 };
 
 interface CountryBasedType {
-  func: () => any;
+  func: (page: number) => Promise<any>;
   routeParam?: {
     mediaType: mediaType;
     country: countryType;
@@ -132,7 +132,7 @@ export const Hollywood = () => (
     func={fetchHollywoodMovies}
     routeParam={{ mediaType: "movie", country: "US" }}
     title="Hollywood Movie"
-    isRanked={{ activeTab: "hollywood" }}
+    isRanked={{ activeTab: "1" }}
   />
 );
 
@@ -141,7 +141,7 @@ export const WesternTV = () => (
     func={fetchWesternTv}
     routeParam={{ mediaType: "tv", country: "US" }}
     title="Wester TV"
-    isRanked={{ activeTab: "western" }}
+    isRanked={{ activeTab: "2" }}
   />
 );
 
@@ -150,7 +150,7 @@ export const Ghanaian = () => (
     func={fetchGhMovies}
     routeParam={{ mediaType: "movie", country: "GH" }}
     title="Ghanaian Special"
-    isRanked={{ activeTab: "ghanaian" }}
+    isRanked={{ activeTab: "3" }}
   />
 );
 
@@ -159,7 +159,7 @@ export const Bollywood = () => (
     func={fetchBollywoodMovies}
     routeParam={{ mediaType: "movie", country: "IN" }}
     title="Hot Bollywood Movies"
-    isRanked={{ activeTab: "bollywood" }}
+    isRanked={{ activeTab: "7" }}
   />
 );
 
@@ -168,7 +168,7 @@ export const NollyWood = () => (
     func={fetchNollywoodMovies}
     routeParam={{ mediaType: "movie", country: "NG" }}
     title="Latest Nollywood Movies"
-    isRanked={{ activeTab: "nollywood" }}
+    isRanked={{ activeTab: "8" }}
   />
 );
 
@@ -177,7 +177,7 @@ export const KDrama = () => (
     func={fetchKDrama}
     routeParam={{ mediaType: "tv", country: "KR" }}
     title="K-Drama"
-    isRanked={{ activeTab: "kdrama" }}
+    isRanked={{ activeTab: "4" }}
   />
 );
 
@@ -186,7 +186,7 @@ export const CDrama = () => (
     func={fetchCDrama}
     routeParam={{ mediaType: "tv", country: "CN" }}
     title="C-Drama"
-    isRanked={{ activeTab: "cdrama" }}
+    isRanked={{ activeTab: "5" }}
   />
 );
 
@@ -195,7 +195,7 @@ export const SpecificDisplays = ({
   func,
   isRanked,
 }: CountryBasedType) => {
-  const { loading, reFetch, reset, data, error } = useFetch(func, true);
+  const { loading, data } = useFetch(func, true);
   const router = useRouter();
 
   return (
@@ -242,7 +242,7 @@ export const Anime = () => (
   <SpecificDisplays
     func={() => animations(true)}
     title="Anime Express"
-    isRanked={{ activeTab: "anime" }}
+    isRanked={{ activeTab: "6" }}
   />
 );
 export const YAF = () => (

@@ -28,11 +28,11 @@ export type countryType = "US" | "NG" | "IN" | "CN" | "KR" | "GH" | "GH|NG|SA";
 const today = new Date();
 const year = today.getFullYear();
 
-export const fetchTrending = async (type: "day" | "week") => {
+export const fetchTrending = async (type: "day" | "week", page = 1) => {
   const routeName = `trending/${
     type === "day" ? "tv" : "all"
   }/${type}?api_key=${process.env.EXPO_PUBLIC_API_KEY}&language=en-US`;
-  const queryParams = `&sort_by=popularity.desc&first_air_date.gte=${year}-01-01&oprimary_release_date.gte=${year}-01-01`;
+  const queryParams = `&sort_by=popularity.desc&first_air_date.gte=${year}-01-01&oprimary_release_date.gte=${year}-01-01&page=${page.toString()}`;
 
   const result = await fetchMovies({ queryParams, routeName });
 
@@ -47,7 +47,7 @@ const countryBasedMovies = async (
   page = 1
 ) => {
   const routeName = `discover/${media}?api_key=${process.env.EXPO_PUBLIC_API_KEY}&include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc`;
-  const queryParams = `&with_origin_country=${country}&page=${page}${
+  const queryParams = `&with_origin_country=${country}&page=${page.toString()}${
     country === "KR" || country === "CN"
       ? `&with_genres=18&with_original_language=${
           country === "KR" ? "ko" : "zh"
@@ -62,10 +62,10 @@ const countryBasedMovies = async (
   return result;
 };
 
-export const animations = async (isAnime = false) => {
+export const animations = async (isAnime = false, page = 1) => {
   const routeName = `discover/${isAnime ? "tv" : "movie"}?api_key=${
     process.env.EXPO_PUBLIC_API_KEY
-  }&include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc`;
+  }&include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc&page=${page.toString()}`;
   const queryParams =
     "&with_genres=16" + isAnime ? "&with_origin_country=JP" : "";
 
@@ -74,15 +74,22 @@ export const animations = async (isAnime = false) => {
   return result;
 };
 
-export const fetchHollywoodMovies = () => countryBasedMovies("movie", "US");
-export const fetchNollywoodMovies = () => countryBasedMovies("movie", "NG");
-export const fetchBollywoodMovies = () => countryBasedMovies("movie", "IN");
-export const fetchGhMovies = () => countryBasedMovies("movie", "GH");
-export const fetchKDrama = () => countryBasedMovies("tv", "KR");
-export const fetchCDrama = () => countryBasedMovies("tv", "CN");
-export const fetchWesternTv = () => countryBasedMovies("tv", "US");
+export const fetchHollywoodMovies = (page: number) =>
+  countryBasedMovies("movie", "US", page);
+export const fetchNollywoodMovies = (page: number) =>
+  countryBasedMovies("movie", "NG", page);
+export const fetchBollywoodMovies = (page: number) =>
+  countryBasedMovies("movie", "IN", page);
+export const fetchGhMovies = (page: number) =>
+  countryBasedMovies("movie", "GH", page);
+export const fetchKDrama = (page: number) =>
+  countryBasedMovies("tv", "KR", page);
+export const fetchCDrama = (page: number) =>
+  countryBasedMovies("tv", "CN", page);
+export const fetchWesternTv = (page: number) =>
+  countryBasedMovies("tv", "US", page);
 
-export const countryBasedFetchMap = {
+export const rankingFetch = {
   hollywood: fetchHollywoodMovies,
   nollywood: fetchNollywoodMovies,
   bollywood: fetchBollywoodMovies,
@@ -90,6 +97,9 @@ export const countryBasedFetchMap = {
   kDrama: fetchKDrama,
   cDrama: fetchCDrama,
   western: fetchWesternTv,
+  toplist: (page: number) => fetchTrending("day", page),
+  anime: (page: number) => animations(true, page),
+  animated: (page: number) => animations(false, page),
 };
 
 // unique categories
@@ -123,15 +133,15 @@ export const YAFiction = async () => {
 };
 
 /**** Genre Based */
-const genreBasedMovies = async (genreId: number) => {
+const genreBasedMovies = async (genreId: number, startYear: string) => {
   const routeName = `discover/movie?api_key=${process.env.EXPO_PUBLIC_API_KEY}&include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc`;
-  const queryParams = `&with_genres=${genreId}&primary_release_year=${year}&with_original_language=en&region=US&vote_count.gte=1000`;
+  const queryParams = `&with_genres=${genreId}&primary_release_year=${startYear}&with_original_language=en&region=US&vote_count.gte=1000`;
 
   const result = await fetchMovies({ routeName, queryParams });
 
   return result;
 };
 
-export const hotAction = () => genreBasedMovies(28);
-export const horror = () => genreBasedMovies(27);
-export const adventure = () => genreBasedMovies(12);
+export const hotAction = () => genreBasedMovies(28, "2025");
+export const horror = () => genreBasedMovies(27, "2024");
+export const adventure = () => genreBasedMovies(12, "2024");
