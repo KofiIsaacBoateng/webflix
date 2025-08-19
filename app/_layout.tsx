@@ -29,7 +29,7 @@ export default function RootLayout() {
         <Stack.Screen name="search" />
         <Stack.Screen name="ranking" />
         <Stack.Screen name="special" />
-        <Stack.Screen name="[id]" />
+        <Stack.Screen name="movies/[id]" />
       </Stack>
       <StatusBar style="auto" />
     </>

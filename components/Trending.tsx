@@ -7,24 +7,67 @@ import {
   FontAwesome,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
   ImageBackground,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Text,
   View,
 } from "react-native";
 const { width, height } = Dimensions.get("screen");
+const MINI_WIDTH = width * 0.7;
+const MINI_SPACING = 10;
 
 const Trending = () => {
-  const { loading, reFetch, reset, data, error } = useFetch(
-    () => fetchTrending("week"),
-    true
-  );
+  const { loading, data } = useFetch(() => fetchTrending("week"), true);
+  const mainRef = useRef<FlatList>(null);
+  const miniRef = useRef<FlatList>(null);
+  const manualRef = useRef<"main" | "mini" | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (data?.length > 0 && isFocused) {
+      const interval = setInterval(() => {
+        const nextIndex = (currentIndex + 1) % data.length;
+        scrollBoth(nextIndex, null);
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [currentIndex, data, isFocused]);
+
+  const scrollBoth = (index: number, origin: "main" | "mini" | null) => {
+    setCurrentIndex(index);
+
+    if (origin !== "main") {
+      mainRef.current?.scrollToIndex({ index, animated: true });
+    }
+
+    if (origin !== "mini") {
+      miniRef.current?.scrollToIndex({ index, animated: true });
+    }
+  };
+
+  const handleScrollMomentumEnd = (
+    e: NativeSyntheticEvent<NativeScrollEvent>,
+    origin: "main" | "mini"
+  ) => {
+    const offsetX = e.nativeEvent.contentOffset.x;
+    let pageWidth;
+    if (origin === "main") pageWidth = width;
+    else pageWidth = MINI_WIDTH + MINI_SPACING;
+
+    const updatedIndex = Math.round(offsetX / pageWidth);
+    scrollBoth(updatedIndex, origin);
+  };
 
   return (
     <View className={`w-full`} style={{ height: height * 0.4 }}>
@@ -35,6 +78,7 @@ const Trending = () => {
       ) : data?.length > 0 ? (
         <>
           <FlatList
+            ref={mainRef}
             data={data}
             renderItem={({ item }) => (
               <View className={`h-full`} style={{ width }}>
@@ -59,7 +103,7 @@ const Trending = () => {
                       "#5550",
                       "#5550",
                       "#5550",
-                      "#5550",
+                      "#0005",
                       "#0007",
                       "#0008",
                       "#0009",
@@ -79,15 +123,27 @@ const Trending = () => {
               </View>
             )}
             horizontal
-            pagingEnabled
+            pagingEnabled={false}
+            snapToInterval={width}
+            decelerationRate="fast"
+            onMomentumScrollEnd={(e) => handleScrollMomentumEnd(e, "main")}
+            getItemLayout={(_, index) => ({
+              length: width,
+              offset: index * width,
+              index,
+            })}
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
           />
 
           <FlatList
+            ref={miniRef}
             data={data}
             renderItem={({ item }) => (
-              <View className="h-[100px] w-fit flex-row items-end">
+              <View
+                className={`h-[100px] flex-row items-end`}
+                style={{ width: width * 0.7 }}
+              >
                 <Image
                   source={{
                     uri: `${TMDB_BASE_IMAGE_PATH}w500${item.poster_path}`,
@@ -96,9 +152,8 @@ const Trending = () => {
                   resizeMode="contain"
                 />
                 <View
-                  className={`flex-row items-center gap-3 bg-[#ccc3] pl-[60px] py-[8px] pr-[10px] w-[${
-                    width * 0.7 + "px"
-                  }] rounded-lg`}
+                  className={`flex-row items-center bg-[#ccc3] pl-[60px] py-[8px] pr-[10px]] rounded-lg`}
+                  style={{ width: width * 0.7, gap: 12 }}
                 >
                   <View>
                     <Text
@@ -143,6 +198,15 @@ const Trending = () => {
             className="absolute bottom-0"
             contentContainerClassName="gap-3 px-2"
             horizontal
+            pagingEnabled={false}
+            decelerationRate="fast"
+            onMomentumScrollEnd={(e) => handleScrollMomentumEnd(e, "mini")}
+            snapToInterval={MINI_WIDTH + MINI_SPACING}
+            getItemLayout={(_, index) => ({
+              length: MINI_WIDTH + MINI_SPACING,
+              offset: index * (MINI_WIDTH + MINI_SPACING),
+              index,
+            })}
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
           />

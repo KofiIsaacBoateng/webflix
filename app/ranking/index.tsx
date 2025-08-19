@@ -203,7 +203,7 @@ const Card = ({ data }: { data: any }) => {
   const router = useRouter();
   return (
     <Pressable
-      onPress={() => router.navigate(`./${data.id}`)}
+      onPress={() => router.navigate(`./movies/${data.id}`)}
       className="flex-row gap-2 py-2"
     >
       <View className="w-[80px] h-[110px]">
