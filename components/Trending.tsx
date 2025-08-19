@@ -60,12 +60,18 @@ const Trending = () => {
     e: NativeSyntheticEvent<NativeScrollEvent>,
     origin: "main" | "mini"
   ) => {
+    // if (manualRef.current === origin) {
+    //   manualRef.current = null; // reset for next real scroll
+    //   return;
+    // }
+
     const offsetX = e.nativeEvent.contentOffset.x;
     let pageWidth;
     if (origin === "main") pageWidth = width;
     else pageWidth = MINI_WIDTH + MINI_SPACING;
 
     const updatedIndex = Math.round(offsetX / pageWidth);
+    // manualRef.current = origin;
     scrollBoth(updatedIndex, origin);
   };
 
@@ -123,7 +129,6 @@ const Trending = () => {
               </View>
             )}
             horizontal
-            pagingEnabled={false}
             snapToInterval={width}
             decelerationRate="fast"
             onMomentumScrollEnd={(e) => handleScrollMomentumEnd(e, "main")}
@@ -197,8 +202,8 @@ const Trending = () => {
             )}
             className="absolute bottom-0"
             contentContainerClassName="gap-3 px-2"
+            contentContainerStyle={{ paddingRight: MINI_WIDTH * 0.2 }}
             horizontal
-            pagingEnabled={false}
             decelerationRate="fast"
             onMomentumScrollEnd={(e) => handleScrollMomentumEnd(e, "mini")}
             snapToInterval={MINI_WIDTH + MINI_SPACING}
