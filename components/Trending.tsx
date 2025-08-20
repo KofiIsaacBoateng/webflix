@@ -103,16 +103,17 @@ const Trending = () => {
                       "#555e",
                       "#555d",
                       "#5552",
-                      "#5550",
-                      "#5550",
-                      "#5550",
-                      "#5550",
-                      "#5550",
-                      "#5550",
+                      "#0000",
+                      "#0000",
+                      "#0000",
+                      "#0000",
+                      "#0000",
+                      "#0000",
+                      "#0000",
+                      "#0003",
                       "#0005",
-                      "#0007",
-                      "#0008",
-                      "#0009",
+                      "#000a",
+                      "#000c",
                     ]}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -157,12 +158,12 @@ const Trending = () => {
                   resizeMode="contain"
                 />
                 <View
-                  className={`flex-row items-center bg-[#ccc3] pl-[60px] py-[8px] pr-[10px]] rounded-lg`}
+                  className={`flex-row items-center bg-[#ccc4] pl-[60px] py-[8px] pr-[10px] rounded-lg`}
                   style={{ width: width * 0.7, gap: 12 }}
                 >
                   <View>
                     <Text
-                      className="text-[#fffa] font-semibold w-[120px]"
+                      className="text-[#fffd] font-semibold w-[120px]"
                       numberOfLines={1}
                     >
                       {item.title || item.name}
@@ -172,25 +173,25 @@ const Trending = () => {
                         <MaterialCommunityIcons
                           name="movie-check"
                           size={12}
-                          color="#fffa"
+                          color="#fffd"
                         />
                       ) : item.media_type === "tv" ? (
-                        <Feather name="tv" size={12} color={"#fffa"} />
+                        <Feather name="tv" size={12} color={"#fffd"} />
                       ) : (
                         <></>
                       )}
-                      <View className="w-[1px] h-3 bg-[#fffa]" />
-                      <Text className="text-[#fffa] text-[.8rem] font-semibold">
+                      <View className="w-[1px] h-3 bg-[#fffc]" />
+                      <Text className="text-[#fffd] text-[.8rem] font-semibold">
                         {item.first_air_date?.split("-")[0] ||
                           item.release_date?.split("-")[0]}
                       </Text>
-                      <View className="w-[1px] h-3 bg-[#fffa]" />
+                      <View className="w-[1px] h-3 bg-[#fffc]" />
                       <Text className="text-[#fffa] text-[.8rem] capitalize font-semibold">
                         {genre[item.genre_ids[0]]}
                       </Text>
                     </View>
                   </View>
-                  <View className="w-7 h-7 items-center justify-center rounded-full overflow-hidden">
+                  <View className="w-7 h-7 ml-auto items-center justify-center rounded-full overflow-hidden">
                     <LinearGradient
                       colors={["deepskyblue", "lime"]}
                       className="absolute w-full h-full opacity-90"

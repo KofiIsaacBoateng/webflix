@@ -157,7 +157,7 @@ const Index = () => {
                 ) : null
               }
               contentContainerClassName="gap-3 px-3"
-              contentContainerStyle={{ paddingBottom: bottom + 5 }}
+              style={{ marginBottom: bottom + 5 }}
               showsVerticalScrollIndicator={false}
               onEndReached={({ distanceFromEnd }) => {
                 if (ranks[activeNav.id]?.length >= 60) return;

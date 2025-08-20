@@ -24,9 +24,10 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack initialRouteName="(tabs)" screenOptions={{ header: () => null }}>
+      <Stack initialRouteName="filter" screenOptions={{ header: () => null }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="filter" />
         <Stack.Screen name="ranking" />
         <Stack.Screen name="special" />
         <Stack.Screen name="movies/[id]" />

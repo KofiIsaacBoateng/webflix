@@ -145,3 +145,36 @@ const genreBasedMovies = async (genreId: number, startYear: string) => {
 export const hotAction = () => genreBasedMovies(28, "2025");
 export const horror = () => genreBasedMovies(27, "2024");
 export const adventure = () => genreBasedMovies(12, "2024");
+
+/**** Filter API */
+export const filterAPI = async (
+  genre: string | undefined,
+  year: string | undefined,
+  type: "movie" | "tv",
+  country: string | undefined,
+  page = 1
+) => {
+  let releaseYear,
+    genreId,
+    with_origin_country = "";
+  if (year) {
+    releaseYear = `&primary_release_year=${releaseYear}`;
+  }
+  if (genre) {
+    genreId = `&with_genres=${genre}`;
+  }
+
+  if (country) {
+    with_origin_country = `&with_origin_country${with_origin_country}`;
+  }
+  const routeName = `discover/${type}?api_key=${process.env.EXPO_PUBLIC_API_KEY}&include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc`;
+  const queryParams =
+    `&vote_count.gte=700&page=${page}` +
+    releaseYear +
+    genreId +
+    with_origin_country;
+
+  const result = await fetchMovies({ routeName, queryParams });
+
+  return result;
+};
