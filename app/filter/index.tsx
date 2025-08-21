@@ -4,8 +4,11 @@ import { Feather, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { PropsWithChildren, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,7 +16,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+const { width } = Dimensions.get("screen");
 type QvF = { qv: string; title: string };
 
 interface Filters {
@@ -30,8 +33,10 @@ interface SelectedFiltersType {
 const Index = () => {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
-  const { title, qv } = useLocalSearchParams<QvF>();
-  const [activeTab, setActiveTab] = useState<"movie" | "tv">("movie");
+  const { title, qv, type } = useLocalSearchParams<
+    QvF & { type: "movie" | "tv" }
+  >();
+  const [activeTab, setActiveTab] = useState<"movie" | "tv">(type || "movie");
   const [activeModal, setActiveModal] = useState<
     "genre" | "country" | "year" | null
   >(null);
@@ -48,14 +53,26 @@ const Index = () => {
     },
   });
 
+  const handleOnMomentumScrollEnd = (
+    e: NativeSyntheticEvent<NativeScrollEvent>
+  ) => {
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const activeIndex = Math.round(offsetX / width);
+    if (activeIndex === 0) {
+      setActiveTab("movie");
+    } else {
+      setActiveTab("tv");
+    }
+  };
+
   return (
     <View className="flex-1 bg-[#101010]">
       {/***** header */}
-      <View className="h-1/6" style={{ paddingTop: top + 10 }}>
+      <View className="h-[15%]" style={{ paddingTop: top + 10 }}>
         {/**** header header */}
         <View
           style={{ borderBottomWidth: StyleSheet.hairlineWidth }}
-          className="flex-row items-center justify-between px-4 pb-4 border-b-[#fff8]"
+          className="flex-row items-center justify-between px-3 pb-3 border-b-[#fff8]"
         >
           <Pressable onPress={() => router.back()}>
             <FontAwesome5 name="angle-left" color="#fffc" size={24} />
@@ -69,7 +86,7 @@ const Index = () => {
         </View>
 
         {/***** header tabs */}
-        <View className="flex-row gap-4 pt-4 pl-4">
+        <View className="flex-row gap-4 pt-3 pl-3">
           <Pressable
             onPress={() => setActiveTab("movie")}
             className="items-center"
@@ -124,12 +141,14 @@ const Index = () => {
           <FilterLists
             setActiveModal={(type) => setActiveModal(type)}
             selectedFilters={selectedFilters[item]}
+            activeTab={activeTab}
             tab={item}
           />
         )}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) => handleOnMomentumScrollEnd(e)}
         keyExtractor={(_, index) => index.toString()}
         className="flex-1 w-ful"
       />
@@ -155,17 +174,17 @@ const ModalView = ({
       animationType="fade"
       statusBarTranslucent
       navigationBarTranslucent
-      backdropColor="#0005"
+      backdropColor="#000c"
       visible={activeModal ? true : false}
       onRequestClose={closeModal}
     >
-      <View
-        className="flex-1"
-        style={{ paddingTop: top + 10, paddingHorizontal: 20 }}
-      >
-        <View className="flex-row items-center justify-between border-b-1 border-b-[#fff8]">
+      <View className="flex-1" style={{ paddingTop: top + 10 }}>
+        <View
+          className="flex-row items-center justify-between border-b-[#fff9] pb-3 px-3"
+          style={{ borderBottomWidth: StyleSheet.hairlineWidth }}
+        >
           <Text className="font-bold uppercase text-[1.2rem] text-[#fff]">
-            {selectedFilter?.title ?? ""}
+            {selectedFilter?.title || ""}
           </Text>
           <Pressable onPress={closeModal}>
             <FontAwesome name="close" color="#fff" size={24} />
@@ -200,9 +219,9 @@ const ModalContent = ({
       closeModal={closeModal}
       activeModal={activeModal}
     >
-      <ScrollView className="mt-5" contentContainerClassName="gap-10 pb-5">
+      <ScrollView className="mt-3" contentContainerClassName="gap-3 pb-5 px-3">
         <Pressable onPress={() => handleItemPress(undefined)}>
-          <Text className="text-white text-[1.5rem]" numberOfLines={1}>
+          <Text className="text-[#fffc] text-[1.3rem]" numberOfLines={1}>
             All
           </Text>
         </Pressable>
@@ -212,7 +231,7 @@ const ModalContent = ({
             key={index}
             className="mb-5"
           >
-            <Text className="text-white text-[1.5rem]" numberOfLines={1}>
+            <Text className="text-[#fffc] text-[1.3rem]" numberOfLines={1}>
               {filter.title}
             </Text>
           </Pressable>

@@ -20,12 +20,36 @@ import {
 const { width } = Dimensions.get("screen");
 
 const categories = [
-  { title: "all", src: all, qv: undefined, name: undefined },
-  { title: "hollywood", src: hollywood, qv: "US", name: "United States" },
-  { title: "nollywood", src: nollywood, qv: "NG", name: "Nigeria" },
-  { title: "bollywood", src: bollywood, qv: "IN", name: "India" },
-  { title: "western", src: western, qv: "US", name: "United States" },
-  { title: "kdrama", src: kdrama, qv: "KR", name: "South Korea" },
+  { type: "movie", title: "all", src: all, qv: undefined, name: undefined },
+  {
+    type: "movie",
+    title: "hollywood",
+    src: hollywood,
+    qv: "US",
+    name: "United States",
+  },
+  {
+    type: "movie",
+    title: "nollywood",
+    src: nollywood,
+    qv: "NG",
+    name: "Nigeria",
+  },
+  {
+    type: "movie",
+    title: "bollywood",
+    src: bollywood,
+    qv: "IN",
+    name: "India",
+  },
+  {
+    type: "tv",
+    title: "western",
+    src: western,
+    qv: "US",
+    name: "United States",
+  },
+  { type: "tv", title: "kdrama", src: kdrama, qv: "KR", name: "South Korea" },
 ];
 const Categories = () => {
   const router = useRouter();
@@ -39,12 +63,12 @@ const Categories = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="h-[50px] px-2 gap-2"
       >
-        {categories.map(({ title, src, qv, name }, index) => (
+        {categories.map(({ title, src, qv, name, type }, index) => (
           <Pressable
             onPress={() =>
               router.navigate({
                 pathname: "./filter",
-                params: { title: name, qv },
+                params: { title: name, qv, type },
               })
             }
             key={index}

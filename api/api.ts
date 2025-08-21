@@ -158,21 +158,19 @@ export const filterAPI = async (
     genreId,
     with_origin_country = "";
   if (year) {
-    releaseYear = `&primary_release_year=${releaseYear}`;
+    releaseYear = `&primary_release_year=${year}`;
   }
   if (genre) {
     genreId = `&with_genres=${genre}`;
   }
 
   if (country) {
-    with_origin_country = `&with_origin_country${with_origin_country}`;
+    with_origin_country = `&with_origin_country=${country}`;
   }
   const routeName = `discover/${type}?api_key=${process.env.EXPO_PUBLIC_API_KEY}&include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc`;
-  const queryParams =
-    `&vote_count.gte=700&page=${page}` +
-    releaseYear +
-    genreId +
-    with_origin_country;
+  const queryParams = `&page=${page}${releaseYear || ""}${genreId || ""}${
+    with_origin_country || ""
+  }`;
 
   const result = await fetchMovies({ routeName, queryParams });
 
