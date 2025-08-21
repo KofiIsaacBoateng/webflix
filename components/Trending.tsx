@@ -90,7 +90,7 @@ const Trending = () => {
               <View className={`h-full`} style={{ width }}>
                 <ImageBackground
                   source={{
-                    uri: `${TMDB_BASE_IMAGE_PATH}w92${item.backdrop_path}`,
+                    uri: `${TMDB_BASE_IMAGE_PATH}w500${item.backdrop_path}`,
                   }}
                   className="w-full h-[100%] justify-end z-10"
                   resizeMode="cover"
@@ -98,11 +98,11 @@ const Trending = () => {
                 >
                   <LinearGradient
                     colors={[
-                      "#555e",
-                      "#555e",
-                      "#555e",
-                      "#555d",
-                      "#5552",
+                      "#5559",
+                      "#5559",
+                      "#5559",
+                      "#5559",
+                      "#5555",
                       "#0000",
                       "#0000",
                       "#0000",

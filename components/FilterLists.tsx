@@ -80,7 +80,6 @@ const FilterLists = ({
     if (activeTab !== tab) return;
     fetchData();
 
-    console.log("detected filter change!: ", selectedFilters);
     // eslint-disable-next-line
   }, [selectedFilters]);
 

@@ -24,7 +24,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack initialRouteName="filter" screenOptions={{ header: () => null }}>
+      <Stack initialRouteName="(tabs)" screenOptions={{ header: () => null }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="search" />
         <Stack.Screen name="filter" />

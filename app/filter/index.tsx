@@ -2,7 +2,7 @@ import FilterLists from "@/components/FilterLists";
 import { countryFilter, genreFilter, yearFilter } from "@/utils/filter";
 import { Feather, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { PropsWithChildren, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -33,10 +33,11 @@ interface SelectedFiltersType {
 const Index = () => {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
+  const scrollRef = useRef<FlatList>(null);
   const { title, qv, type } = useLocalSearchParams<
     QvF & { type: "movie" | "tv" }
   >();
-  const [activeTab, setActiveTab] = useState<"movie" | "tv">(type || "movie");
+  const [activeTab, setActiveTab] = useState<"movie" | "tv">(type);
   const [activeModal, setActiveModal] = useState<
     "genre" | "country" | "year" | null
   >(null);
@@ -65,6 +66,20 @@ const Index = () => {
     }
   };
 
+  const updateTab = (tab: "movie" | "tv") => {
+    setActiveTab(tab);
+    if (tab === "movie") {
+      scrollRef.current?.scrollToIndex({ index: 0, animated: true });
+      return;
+    }
+
+    scrollRef.current?.scrollToIndex({ index: 1, animated: true });
+  };
+
+  useEffect(() => {
+    updateTab(type);
+  }, [type]);
+
   return (
     <View className="flex-1 bg-[#101010]">
       {/***** header */}
@@ -88,7 +103,7 @@ const Index = () => {
         {/***** header tabs */}
         <View className="flex-row gap-4 pt-3 pl-3">
           <Pressable
-            onPress={() => setActiveTab("movie")}
+            onPress={() => updateTab("movie")}
             className="items-center"
           >
             <Text style={{ color: activeTab === "movie" ? "#fff" : "#fffa" }}>
@@ -98,10 +113,7 @@ const Index = () => {
               <View className="w-7 h-1 rounded-full bg-[#fff]" />
             )}
           </Pressable>
-          <Pressable
-            onPress={() => setActiveTab("tv")}
-            className="items-center"
-          >
+          <Pressable onPress={() => updateTab("tv")} className="items-center">
             <Text style={{ color: activeTab === "tv" ? "#fff" : "#fffa" }}>
               TV/Series
             </Text>
@@ -136,6 +148,7 @@ const Index = () => {
 
       {/**** data */}
       <FlatList
+        ref={scrollRef}
         data={["movie", "tv"]}
         renderItem={({ item }: { item: "movie" | "tv" }) => (
           <FilterLists
@@ -147,6 +160,11 @@ const Index = () => {
         )}
         horizontal
         pagingEnabled
+        getItemLayout={(_, index) => ({
+          length: width * 2,
+          offset: width * index,
+          index,
+        })}
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={(e) => handleOnMomentumScrollEnd(e)}
         keyExtractor={(_, index) => index.toString()}
