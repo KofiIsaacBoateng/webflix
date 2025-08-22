@@ -176,3 +176,12 @@ export const filterAPI = async (
 
   return result;
 };
+
+export const searchAPI = async (term: string, page = 1) => {
+  const routeName = `search/multi?include_adult=false&language=en-US&page=${page}&sort_by=vote_average.desc`;
+  const queryParams = `&query=${term.trim().split(" ").join("%20")}`;
+
+  const result = await fetchMovies({ routeName, queryParams });
+
+  return result;
+};
