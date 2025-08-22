@@ -1,5 +1,6 @@
-import { searchAPI } from "@/api/api";
+import { fetchTrending, searchAPI } from "@/api/api";
 import genre from "@/api/genre";
+import useFetch from "@/hooks/useFetch";
 import { TMDB_BASE_IMAGE_PATH } from "@/utils/images";
 import {
   AntDesign,
@@ -8,12 +9,14 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -28,23 +31,57 @@ const Index = () => {
   const [input, setInput] = useState("");
   const [data, setData] = useState<any[] | undefined>(undefined);
   const [loading, setLoading] = useState(false);
+  const [recents, setRecents] = useState<string[] | []>([]);
+  const [showClearWarning, setShowClearWarning] = useState(false);
+  const { data: searchRecommendations } = useFetch(() => fetchTrending("day"));
 
   const updateInput = (text: string) => {
     setInput(text);
   };
 
   const fetchData = async (term?: string) => {
+    let text: string;
+    if (term) {
+      updateInput(term);
+      text = term;
+    } else {
+      text = input;
+    }
     try {
       setLoading(true);
-      if (term) updateInput(term);
-      const results = await searchAPI(term || input);
+      const results = await searchAPI(text);
       setData(results);
     } catch (error) {
       console.log("Error fetching search data: ", error);
     } finally {
+      await AsyncStorage.setItem("recents", JSON.stringify([text, ...recents]));
+      setRecents((prev) => [text, ...prev]);
       setLoading(false);
     }
   };
+
+  const clearRecents = async (clear = false) => {
+    if (!clear) {
+      setShowClearWarning(true);
+      return;
+    }
+
+    setShowClearWarning(false);
+    await AsyncStorage.removeItem("recents");
+    setRecents([]);
+  };
+
+  useEffect(() => {
+    (async () => {
+      let results = await AsyncStorage.getItem("recents");
+      if (results) {
+        setRecents(JSON.parse(results));
+        return;
+      }
+
+      setRecents([]);
+    })();
+  }, []);
 
   return (
     <View style={{ paddingTop: top + 5 }} className="flex-1 bg-[#101010]">
@@ -98,33 +135,68 @@ const Index = () => {
       {input.length === 0 ? (
         <View className="flex-1">
           {/**** recent search items */}
-          <View className="gap-2 px-3 py-3">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-light text-[#fffc] text-[1.1rem]">
-                Recents
-              </Text>
-              <Pressable
-                onPress={() => null}
-                className="flex-row items-center gap-1"
-              >
-                <Feather name="trash-2" color="#fffc" size={15} />
-                <Text className="text-[#fffc] font-light text-[.9rem]">
-                  Clear
+          {recents.length > 0 && (
+            <View className="gap-2 px-3 py-3">
+              <View className="flex-row items-center justify-between">
+                <Text className="font-light text-[#fffc] text-[1.1rem]">
+                  Recents
                 </Text>
-              </Pressable>
+                <Pressable
+                  onPress={() => clearRecents()}
+                  className="flex-row items-center gap-1"
+                >
+                  <Feather name="trash-2" color="#fffc" size={15} />
+                  <Text className="text-[#fffc] font-light text-[.9rem]">
+                    Clear
+                  </Text>
+                </Pressable>
+              </View>
+              <View className="flex-row flex-wrap gap-3 items-center">
+                {recents.map((item: string, index) => (
+                  <SearchTerms
+                    key={index.toString()}
+                    title={item}
+                    action={fetchData}
+                  />
+                ))}
+              </View>
             </View>
-            <View className="flex-row flex-wrap gap-3 items-center">
-              <SearchTerms title="Snowfall" action={fetchData} />
-              <SearchTerms
-                title="Mission Impossible: The final reconing"
-                action={fetchData}
-              />
-              <SearchTerms title="Dexter" action={fetchData} />
-              <SearchTerms title="Stranger things" action={fetchData} />
-              <SearchTerms title="Superman" action={fetchData} />
-              <SearchTerms title="F1" action={fetchData} />
+          )}
+          {/**** clear recents warning modal */}
+          <Modal
+            animationType="fade"
+            statusBarTranslucent
+            navigationBarTranslucent
+            transparent
+            visible={showClearWarning}
+            onRequestClose={() => null}
+          >
+            <View className="flex-1 px-10 justify-center bg-[#0000]">
+              <View className="bg-[#313131] px-5 py-6 rounded-md">
+                <Text className="text-white font-extrabold text-[1.2rem] text-center">
+                  Clear all recent searches ?
+                </Text>
+                <Text className="text-[#fffc] mt-2 font-semibold text-center">
+                  This act can't be undone, and you'll remove all your recent
+                  searches!
+                </Text>
+                <View className="flex-row justify-center gap-3 mt-8">
+                  <Pressable
+                    onPress={() => setShowClearWarning(false)}
+                    className="min-w-[100px] items-center py-3 rounded-lg bg-[#fefefe33]"
+                  >
+                    <Text className="font-bold text-white">cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => clearRecents(true)}
+                    className="min-w-[110px] items-center py-3 rounded-lg bg-[#10101088]"
+                  >
+                    <Text className="font-bold text-white">clear</Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
-          </View>
+          </Modal>
 
           {/**** what everyone is searching */}
           <View className="gap-2 px-3 mt-5">
@@ -132,15 +204,14 @@ const Index = () => {
               🔥 Everyone is searching...
             </Text>
             <View className="flex-row flex-wrap gap-3 items-center">
-              <SearchTerms title="Snowfall" action={fetchData} />
-              <SearchTerms
-                title="Mission Impossible: The final reconing"
-                action={fetchData}
-              />
-              <SearchTerms title="Dexter" action={fetchData} />
-              <SearchTerms title="Stranger things" action={fetchData} />
-              <SearchTerms title="Superman" action={fetchData} />
-              <SearchTerms title="F1" action={fetchData} />
+              {searchRecommendations &&
+                searchRecommendations.map((data, index) => (
+                  <SearchTerms
+                    key={index.toString()}
+                    title={data.name}
+                    action={fetchData}
+                  />
+                ))}
             </View>
           </View>
         </View>
@@ -159,6 +230,26 @@ const Index = () => {
             renderItem={({ item, index }) => <Card data={item} />}
             className="mt-5"
             contentContainerClassName="px-3 gap-5 pb-5"
+            ListEmptyComponent={
+              <View className="flex-1 h-[500px] items-center justify-center">
+                <Text className="text-[#fffa] font-extralight">
+                  ---- No content ----
+                </Text>
+              </View>
+            }
+            ListFooterComponent={
+              loading && data && data.length > 0 ? (
+                <View className="py-3">
+                  <ActivityIndicator color="lime" size="small" />
+                </View>
+              ) : (data?.length ?? 0) >= 100 ? (
+                <View className="py-3">
+                  <Text className="text-center text-[.9rem] text-[#fff8]">
+                    ---- No content ----
+                  </Text>
+                </View>
+              ) : null
+            }
             keyExtractor={(_, index) => index.toString()}
           />
         </View>
@@ -193,7 +284,9 @@ const RecommendationList = ({
   input: string;
   action: (term: string) => void;
 }) => {
-  const [data, setData] = useState<{ match: string; rest: string }[] | []>([]);
+  const [data, setData] = useState<
+    { match: string; rest: string }[] | undefined
+  >(undefined);
   const [loading, setLoading] = useState(false);
 
   // get title recommendations
@@ -229,7 +322,7 @@ const RecommendationList = ({
   };
 
   useEffect(() => {
-    const timeout = setTimeout(fetchList, 2000);
+    const timeout = setTimeout(fetchList, 1000);
 
     return () => clearTimeout(timeout);
     // eslint-disable-next-line
@@ -237,15 +330,28 @@ const RecommendationList = ({
 
   return (
     <View className="relative flex-1">
-      <FlatList
-        data={data}
-        className="flex-1 pt-3 px-3"
-        contentContainerClassName="gap-3 pb-3"
-        renderItem={({ item }) => (
-          <RecommendationItem match={item} action={action} />
-        )}
-        keyExtractor={(_, index) => index.toString()}
-      />
+      {data && (
+        <FlatList
+          data={data}
+          className="flex-1 pt-3 px-3"
+          contentContainerClassName="gap-3 pb-3"
+          renderItem={({ item }) => (
+            <RecommendationItem match={item} action={action} />
+          )}
+          ListEmptyComponent={
+            <View>
+              {!loading && (
+                <View className="flex-1 h-[500px] items-center justify-center">
+                  <Text className="text-[#fffa] font-extralight">
+                    ---- No match found ----
+                  </Text>
+                </View>
+              )}
+            </View>
+          }
+          keyExtractor={(_, index) => index.toString()}
+        />
+      )}
       {loading && (
         <View className="absolute top-0 left-0 bottom-1/2 right-0 bg-transparent items-center justify-center">
           <ActivityIndicator size="small" color="lime" />
@@ -281,11 +387,11 @@ const RecommendationItem = ({
 const Card = ({ data }: { data: any }) => {
   const router = useRouter();
   return (
-    <Pressable onPress={() => router.navigate(`/movies/${data.id}`)}>
+    <View>
       <View className="flex-row gap-2">
         <Image
           source={{ uri: `${TMDB_BASE_IMAGE_PATH}w500${data.poster_path}` }}
-          className="w-1/5 h-[100px] rounded-md "
+          className="w-1/5 h-[100px] rounded-md"
         />
         <View className="flex-1 self-center gap-3">
           <Text
@@ -312,16 +418,16 @@ const Card = ({ data }: { data: any }) => {
             ) : (
               <></>
             )}
-            {data.vote_average && (
-              <>
-                <View className="flex-row items-center gap-1">
-                  <AntDesign name="star" color="goldenrod" size={12} />
-                  <Text className="text-[#fff] font-semibold text-[.9rem]">
-                    {data.vote_average.toFixed(1)}
-                  </Text>
-                </View>
+            {data.vote_average ? (
+              <View className="flex-row items-center gap-1">
+                <AntDesign name="star" color="goldenrod" size={12} />
+                <Text className="text-[#fff] font-semibold text-[.9rem]">
+                  {data.vote_average.toFixed(1)}
+                </Text>
                 <View className="w-[1px] h-3 bg-[#fffa]" />
-              </>
+              </View>
+            ) : (
+              <></>
             )}
             {(data.first_air_date || data.release_date) && (
               <>
@@ -341,8 +447,15 @@ const Card = ({ data }: { data: any }) => {
             )}
           </View>
         </View>
+
+        <Pressable
+          onPress={() => router.navigate(`/movies/${data.id}`)}
+          className="rounded-full w-10 h-10 items-center justify-center bg-[#fffc] self-center"
+        >
+          <FontAwesome name="angle-right" size={18} color="#555" />
+        </Pressable>
       </View>
-    </Pressable>
+    </View>
   );
 };
 
